@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(winget upgrade *)",
+      "Bash(where git *)",
+      "Bash(winget search *)",
+      "Bash(whisper --help)",
+      "Bash(pip --version)",
+      "Bash(python -c ' *)",
+      "Bash(cp -r \"/c/Users/Administrator/AppData/Local/Temp/ffmpeg/ffmpeg-8.1.1-essentials_build\" \"D:/Program Files \\(x86\\)/ffmpeg\")",
+      "Read(//d/Program Files \\(x86\\)/ffmpeg/**)",
+      "Bash(python convert.py)",
+      "Bash(python make_bilingual_srt.py)",
+      "Bash(export PATH=\"$PATH:/c/Users/Administrator/AppData/Local/Temp/ffmpeg/ffmpeg-8.1.1-essentials_build/bin\")",
+      "Bash(ffmpeg -i input.mp4 -vf \"subtitles=output_bilingual.srt:charenc=utf-8\" -c:a copy -c:v libx264 -crf 23 -preset medium output_bilingual.mp4)",
+      "Bash(echo '{\"workspace\":{\"current_dir\":\"D:\\\\\\\\Program Files \\(x86\\)\\\\\\\\practice\\\\\\\\计时器\"},\"model\":{\"display_name\":\"deepseek-v4-flash\"},\"context_window\":{\"total_input_tokens\":94500,\"context_window_size\":200000}}')",
+      "Bash(powershell -NoProfile -ExecutionPolicy Bypass -File \"C:\\\\Users\\\\Administrator\\\\.claude\\\\statusline.ps1\")",
+      "Bash(echo '{\"cwd\":\"D:\\\\\\\\Program Files \\(x86\\)\\\\\\\\practice\\\\\\\\计时器\",\"model\":{\"display_name\":\"deepseek-v4-flash\"},\"context_window\":{\"used_percentage\":56}}')",
+      "Bash(node \"C:\\\\Users\\\\Administrator\\\\.claude\\\\statusline.cjs\")"
+    ]
+  }
+}

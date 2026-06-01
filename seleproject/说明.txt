@@ -1,0 +1,91 @@
+操作元素对象的前提是定位到该元素，然后才能对被定位到的元素进行对应的具体操作方法
+
+通过 By 类进行定位操作：from selenium.webdriver.commom.by import By
+通过 find_element 方法定位元素
+元素定位方法一共有8种定位方式：
+ID = "id"                                   # 多
+XPATH = "xpath"                             # 多
+LINK_TEXT = "link text"                     #
+PARTIAL_LINK_TEXT = "partial link text"     #
+NAME = "name"                               # 多
+TAG_TEXT = "tag text"                       # 基本不用
+CLASS_TEXT = "class text"                   # 多
+CSS_SELECTOR = "css selector"               # 多
+
+
+############################## 元素定位不到的几个原因：
+————————元素未加载完成
+·页面上的元素可能由于网络延迟、JavaScript渲染等原因导致未加载完成，使用selenium进行定位会找不到
+·解决方式：
+    添加对应的等待时间，让元素充分加载完成之后再进行具体定位的操作
+    等待有三种方式：
+        强制等待：非常笨拙，执行速度非常影响效率
+        显式等待：WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.XPATH, '//*[@id="1"]/div/h3/a/div/div/p/span/span')))
+                有限的时间内不停地找这个元素，直到找到这个元素
+        隐式等待：driver.implicitly_wait(3)
+                有限的时间内不停地找这个元素
+
+————————嵌套在iframe或frame内的元素
+·如果目标元素位于一个iframe或frame的子页面中，那么直接使用selenium无法对该元素进行定位，一旦涉及iframe或frame子页面元素嵌套，必须先切换成功再进行元素定位操作
+·解决方式：
+    元素再子页面的frame元素中需要进行切换定位
+    driver.switch_to.frame(driver.find_element(By.XPATH, 'iframe'))
+    然后再：
+    driver.find_element(By.XPATH, 'xpath')
+
+————————元素id或属性变化
+·当页面中同一个元素每次值不一样的时候，那么使用常规定位元素的方式会出错
+·需要使用xpath提供的对应方法，进行手写xpath定位元素操作
+    以**开头
+    以**结尾
+    包含**
+元素变化具体值：
+    以网易云音乐为例，每刷新一次，id都会变一次
+        //*[@id="auto-id-WA684cldUfVTLKq0"]
+        //*[@id="auto-id-9cU2qtMvkuz2ixTq"]
+    处理方式：
+        text = driver.find_element(By.XPATH, '//*[starts-with(@id,  "auto-id-")]').text
+
+————————元素不可交互
+·如果元素是通过JavaScript脚本动态生成，那么元素可能不能在html中，使用seleium无法完成直接定位
+·可以通过编写Javascript脚本执行对元素的强制操作或者属性修改之后在进行定位操作
+·因为seleium支持JavaScript脚本编写执行，可以直接调用对应的方法进行操作
+
+————————元素被遮挡
+·有时候元素可能被其他元素遮挡，如弹框、广告等信息，导致selenium无法完成交互
+·可以通过编写Javascript脚本完成生成之后再进行对应的操作
+
+————————特殊元素处理
+·警告框
+    警告框属于JavaScript脚本执行机制的结果
+    一般警告框有以下的分类
+        alert
+        confirm
+        prompt
+        input
+        div
+    解决警告框的方法
+        获取警告框的元素
+        获取警告框的提示信息
+        关闭警告框
+            通过确定按钮进行关闭
+            通过取消按钮进行关闭
+        针对一些警告框可以进行输入，那么进行定位之后输入即可
+
+
+
+import time
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.service import Service
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
+# 创建一个浏览器驱动
+driver = webdriver.Chrome()
+# 查看所有页面
+print(driver.windows_handles)
+# 自由切换不同的页面
+driver.switch_to.window(driver.window_handles[1])
+# 获取单个页面信息
+print(driver.current_window_handle)

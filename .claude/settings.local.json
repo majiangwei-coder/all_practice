@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mv \"07_并发编程\" \"08_并发编程\")",
+      "Bash(mv \"08_标准库精选\" \"09_标准库精选\")",
+      "Bash(ls -d \"d:/Program Files \\(x86\\)/practice/python-tutorial/\"07_* \"d:/Program Files \\(x86\\)/practice/python-tutorial/\"08_* \"d:/Program Files \\(x86\\)/practice/python-tutorial/\"09_*)",
+      "WebSearch",
+      "Bash(python checkin.py)",
+      "Bash(python checkin.py --date 2026-05-19)",
+      "Bash(python checkin.py --date 2026-05-18)",
+      "Bash(python checkin.py status)",
+      "Bash(python checkin.py report)",
+      "Bash(python checkin.py chart)",
+      "Bash(python checkin.py report --month)",
+      "WebFetch(domain:g8hh.github.io)"
+    ],
+    "additionalDirectories": [
+      "d:\\Program Files (x86)\\practice"
+    ]
+  }
+}

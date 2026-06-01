@@ -1,0 +1,107 @@
+{
+  "meta": {
+    "start_date": "2026-05-18",
+    "target_days": 100
+  },
+  "logs": {
+    "2026-05-18": {
+      "piano": {
+        "done": false,
+        "note": "晚上再练"
+      },
+      "weight": {
+        "done": true,
+        "exercise_minutes": 84,
+        "exercise_type": "跑步",
+        "weight_kg": 83,
+        "note": "从今天开始！回到巅峰70KG！"
+      },
+      "english": {
+        "done": false,
+        "note": "晚上学"
+      }
+    },
+    "2026-05-19": {
+      "piano": {
+        "done": false,
+        "note": "偷懒了"
+      },
+      "weight": {
+        "done": true,
+        "exercise_minutes": 35.0,
+        "exercise_type": "力量-练腿日",
+        "note": "继续加油"
+      },
+      "english": {
+        "done": false,
+        "note": "偷懒了"
+      }
+    },
+    "2026-05-20": {
+      "piano": {
+        "done": false,
+        "note": "偷懒"
+      },
+      "weight": {
+        "done": true,
+        "exercise_minutes": 45.0,
+        "exercise_type": "乒乓球"
+      },
+      "english": {
+        "done": false,
+        "note": "偷懒"
+      }
+    },
+    "2026-05-21": {
+      "piano": {
+        "done": true,
+        "minutes": 30,
+        "note": "哈农"
+      },
+      "weight": {
+        "done": true,
+        "exercise_minutes": 45.0,
+        "exercise_type": "乒乓球"
+      },
+      "english": {
+        "done": false,
+        "note": "偷懒"
+      }
+    },
+    "2026-05-22": {
+      "piano": {
+        "done": false,
+        "note": "。。"
+      },
+      "weight": {
+        "done": false,
+        "note": "。。"
+      },
+      "english": {
+        "done": false,
+        "note": "。。"
+      }
+    },
+    "2026-05-31": {
+      "piano": {
+        "done": false,
+        "note": "偷懒"
+      },
+      "weight": {
+        "done": true,
+        "exercise_minutes": 85.0,
+        "exercise_type": "跑步十公里",
+        "weight_kg": 83.5,
+        "note": "难受"
+      },
+      "english": {
+        "done": false,
+        "note": "偷懒"
+      }
+    }
+  },
+  "weights": {
+    "2026-05-18": 83,
+    "2026-05-31": 83.5
+  }
+}

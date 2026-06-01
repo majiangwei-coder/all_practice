@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<datas title="root">
+    <data id="1">
+        <name>喜马高</name>
+        <age>18</age>
+        <gender>男</gender>
+    </data>
+    <data id="2">
+        <name>喜马妞</name>
+        <age>28</age>
+        <gender>女</gender>
+    </data>
+</datas>

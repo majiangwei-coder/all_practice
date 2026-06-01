@@ -1,0 +1,17 @@
+- baseInfo:
+    api_name: 用户登录
+    url: /dar/user/login
+    method: post
+    header:
+      Content-Type: application/x-www-form-urlencoded;charset=UTF-8
+      token: ${get_extract_data(token)}
+  testCase:
+    - case_name: 用户名和密码正确登录验证
+      data:            # get 只接收 params 参数，post 根据请求头约定来入参，表单提交就是 data，json 提交的话就写 json
+        user_name: test01
+        passwd: ${md5_params(admin123)}
+      validaton:
+        - contains: {'error_code': none}
+        - eq: {'msg': '登陆成功'}
+      extract:
+        token: $.token

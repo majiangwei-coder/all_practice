@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>100天计划看板</title>
+<style>
+  :root {
+    --bg: #f5f7fa;
+    --surface: #ffffff;
+    --border: #e0e5ec;
+    --muted: #8e98a8;
+    --text: #2c3e50;
+    --accent: #4f8cff;
+    --piano-color: #4f8cff;
+    --weight-color: #2ed573;
+    --english-color: #ff7f50;
+    --danger: #ff4757;
+    --warning: #ffb800;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg); color: var(--text); padding: 20px;
+  }
+  .container {
+    max-width: 900px; margin: 0 auto;
+  }
+
+  /* 头部 */
+  .header {
+    text-align: center; padding: 30px 20px;
+    background: var(--surface); border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.06); margin-bottom: 20px;
+  }
+  .header h1 { font-size: 26px; font-weight: 700; margin-bottom: 8px; }
+  .header .subtitle { color: var(--muted); font-size: 14px; }
+  .header .day-num { font-size: 48px; font-weight: 700; color: var(--accent); margin: 10px 0 4px; }
+  .header .day-label { color: var(--muted); font-size: 14px; }
+
+  /* 整体进度条 */
+  .overall-progress {
+    margin: 20px 0; padding: 0 10px;
+  }
+  .overall-progress .info {
+    display: flex; justify-content: space-between;
+    font-size: 14px; color: var(--muted); margin-bottom: 8px;
+  }
+  .progress-grid {
+    display: grid; grid-template-columns: repeat(20, 1fr); gap: 3px;
+  }
+  .progress-cell {
+    aspect-ratio: 1; border-radius: 3px; background: #e8ecf1;
+    transition: background 0.3s; position: relative;
+    cursor: pointer;
+  }
+  .progress-cell.done { background: var(--accent); }
+  .progress-cell.partial { background: var(--warning); }
+  .progress-cell.today { outline: 2px solid var(--text); outline-offset: -2px; }
+  .progress-cell:hover::after {
+    content: attr(data-tip); position: absolute; bottom: 120%; left: 50%;
+    transform: translateX(-50%); background: #333; color: #fff;
+    padding: 3px 8px; border-radius: 4px; font-size: 12px; white-space: nowrap; z-index: 10;
+  }
+
+  /* 三个目标卡片 */
+  .goals-row {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px;
+  }
+  .goal-card {
+    background: var(--surface); border-radius: 16px; padding: 20px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.04); text-align: center;
+  }
+  .goal-card .ring-wrap {
+    position: relative; width: 140px; height: 140px; margin: 0 auto 12px;
+  }
+  .goal-card .ring-wrap svg { transform: rotate(-90deg); }
+  .goal-card .ring-wrap .bg-ring { fill: none; stroke: #e8ecf1; stroke-width: 6; }
+  .goal-card .ring-wrap .fg-ring {
+    fill: none; stroke-width: 6; stroke-linecap: round;
+    stroke-dashoffset: 0; transition: stroke-dashoffset 0.8s ease;
+  }
+  .goal-card .ring-center {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    text-align: center;
+  }
+  .goal-card .ring-center .pct { font-size: 28px; font-weight: 700; }
+  .goal-card .ring-center .label { font-size: 13px; color: var(--muted); margin-top: 2px; }
+  .goal-card .goal-name { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+  .goal-card .goal-streak { font-size: 13px; color: var(--muted); }
+
+  /* 周视图 */
+  .week-view {
+    background: var(--surface); border-radius: 16px; padding: 20px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.04); margin-bottom: 20px;
+  }
+  .week-view h3 { font-size: 14px; color: var(--muted); margin-bottom: 12px; }
+  .week-table { width: 100%; border-collapse: collapse; }
+  .week-table th {
+    text-align: center; font-size: 12px; color: var(--muted);
+    padding: 4px; font-weight: 500;
+  }
+  .week-table td {
+    text-align: center; padding: 8px 4px; font-size: 18px;
+    border-radius: 6px;
+  }
+  .week-table .goal-label { text-align: left; font-size: 13px; color: var(--text); width: 50px; }
+
+  /* 体重图 */
+  .weight-section {
+    background: var(--surface); border-radius: 16px; padding: 20px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.04); margin-bottom: 20px;
+  }
+  .weight-section h3 { font-size: 14px; color: var(--muted); margin-bottom: 12px; }
+  .weight-section canvas { width: 100%; height: 200px; border-radius: 8px; display: block; }
+
+  /* 数据粘贴区 */
+  .data-section {
+    background: var(--surface); border-radius: 16px; padding: 20px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.04); margin-bottom: 20px;
+  }
+  .data-section textarea {
+    width: 100%; height: 120px; border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px; font-family: monospace; font-size: 13px;
+    resize: vertical; outline: none;
+  }
+  .data-section textarea:focus { border-color: var(--accent); }
+  .data-section .btn-row { display: flex; gap: 10px; margin-top: 10px; }
+  .data-section button {
+    padding: 8px 20px; border: none; border-radius: 8px;
+    font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+  }
+  .data-section button.primary { background: var(--accent); color: #fff; }
+  .data-section button.primary:hover { background: #6ba0ff; }
+  .data-section button.secondary { background: var(--bg); color: var(--text); }
+  .data-section button.secondary:hover { background: var(--border); }
+  .data-section .hint { font-size: 12px; color: var(--muted); margin-top: 8px; }
+
+  .error-msg { color: var(--danger); font-size: 13px; margin-top: 8px; }
+  .hidden { display: none; }
+
+  @media (max-width: 600px) {
+    .goals-row { grid-template-columns: 1fr; }
+    .header h1 { font-size: 22px; }
+    .goal-card .ring-wrap { width: 120px; height: 120px; }
+  }
+</style>
+</head>
+<body>
+<script src="data.js"></script>
+<div class="container">
+  <div class="header" id="header">
+    <h1>100天三目标计划</h1>
+    <div class="subtitle">钢琴 · 体重 · 英语</div>
+    <div class="day-num" id="dayNum">--</div>
+    <div class="day-label">/ 100 天</div>
+  </div>
+
+  <!-- 整体进度 -->
+  <div class="overall-progress" id="overallSection">
+    <div class="info">
+      <span id="overallLabel">整体完成率: --</span>
+      <span id="overallCount">--/--</span>
+    </div>
+    <div class="progress-grid" id="progressGrid"></div>
+  </div>
+
+  <!-- 三目标圆环 -->
+  <div class="goals-row" id="goalsRow">
+    <div class="goal-card" id="cardPiano">
+      <div class="goal-name">钢琴</div>
+      <div class="ring-wrap">
+        <svg viewBox="0 0 140 140"><circle class="bg-ring" cx="70" cy="70" r="58"/><circle class="fg-ring" id="ringPiano" cx="70" cy="70" r="58" style="stroke:var(--piano-color)"/></svg>
+        <div class="ring-center"><div class="pct" id="pctPiano">--</div><div class="label">完成率</div></div>
+      </div>
+      <div class="goal-streak" id="streakPiano">连续 -- 天</div>
+    </div>
+    <div class="goal-card" id="cardWeight">
+      <div class="goal-name">体重</div>
+      <div class="ring-wrap">
+        <svg viewBox="0 0 140 140"><circle class="bg-ring" cx="70" cy="70" r="58"/><circle class="fg-ring" id="ringWeight" cx="70" cy="70" r="58" style="stroke:var(--weight-color)"/></svg>
+        <div class="ring-center"><div class="pct" id="pctWeight">--</div><div class="label">完成率</div></div>
+      </div>
+      <div class="goal-streak" id="streakWeight">连续 -- 天</div>
+    </div>
+    <div class="goal-card" id="cardEnglish">
+      <div class="goal-name">英语</div>
+      <div class="ring-wrap">
+        <svg viewBox="0 0 140 140"><circle class="bg-ring" cx="70" cy="70" r="58"/><circle class="fg-ring" id="ringEnglish" cx="70" cy="70" r="58" style="stroke:var(--english-color)"/></svg>
+        <div class="ring-center"><div class="pct" id="pctEnglish">--</div><div class="label">完成率</div></div>
+      </div>
+      <div class="goal-streak" id="streakEnglish">连续 -- 天</div>
+    </div>
+  </div>
+
+  <!-- 周视图 -->
+  <div class="week-view" id="weekSection">
+    <h3>最近 7 天打卡</h3>
+    <table class="week-table" id="weekTable">
+      <thead><tr><th></th><th>一</th><th>二</th><th>三</th><th>四</th><th>五</th><th>六</th><th>日</th></tr></thead>
+      <tbody id="weekBody"></tbody>
+    </table>
+  </div>
+
+  <!-- 体重趋势 -->
+  <div class="weight-section" id="weightSection">
+    <h3>体重趋势</h3>
+    <canvas id="weightCanvas"></canvas>
+    <div class="error-msg hidden" id="weightEmpty">暂无体重数据</div>
+  </div>
+
+  <!-- 数据加载 -->
+  <div class="data-section">
+    <h3>数据加载</h3>
+    <div class="btn-row">
+      <input type="file" id="fileInput" accept=".json" hidden onchange="loadFile(event)">
+      <button class="primary" onclick="document.getElementById('fileInput').click()">选择 data.json 文件</button>
+      <button class="secondary" onclick="document.getElementById('jsonInput').value=''; document.getElementById('jsonInput').style.display=''; this.style.display='none'">粘贴文本</button>
+    </div>
+    <textarea id="jsonInput" style="display:none;margin-top:10px" placeholder="在此粘贴 data.json 内容..." rows="6"></textarea>
+    <div class="btn-row" id="pasteBtnRow" style="display:none;margin-top:8px">
+      <button class="primary" onclick="renderFromInput()">渲染</button>
+    </div>
+    <div class="hint">提示：点击"选择 data.json 文件"直接选择同目录下的 data.json 即可自动加载</div>
+    <div id="errorMsg" class="error-msg hidden"></div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const RADIUS = 58;
+  const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
+  const GOALS = ['piano', 'weight', 'english'];
+  const GOAL_NAMES = {piano: '钢琴', weight: '体重', english: '英语'};
+  const GOAL_COLORS = {piano: '#4f8cff', weight: '#2ed573', english: '#ff7f50'};
+  const START_DATE = '2026-05-18';
+  const TARGET_DAYS = 100;
+  const DAYS = ['日', '一', '二', '三', '四', '五', '六'];
+
+  let currentData = null;
+
+  // 工具函数
+  function dayNumber(dateStr) {
+    const d = new Date(dateStr);
+    const s = new Date(START_DATE);
+    return Math.floor((d - s) / (86400000)) + 1;
+  }
+
+  function todayStr() {
+    return new Date().toISOString().slice(0, 10);
+  }
+
+  function formatDate(dateStr) {
+    const d = new Date(dateStr);
+    return `${d.getMonth()+1}/${d.getDate()}`;
+  }
+
+  function calcStreak(data, goal) {
+    const logs = data.logs || {};
+    const dates = Object.keys(logs).sort().reverse();
+    let streak = 0;
+    for (const d of dates) {
+      const entry = logs[d]?.[goal];
+      if (entry?.done) streak++;
+      else break;
+    }
+    return streak;
+  }
+
+  function calcCompletion(data, goal) {
+    const logs = data.logs || {};
+    let done = 0, total = 0;
+    for (const d in logs) {
+      const g = logs[d]?.[goal];
+      if (g?.done !== undefined) {
+        total++;
+        if (g.done) done++;
+      }
+    }
+    return {done, total, rate: total > 0 ? (done / total * 100) : 0};
+  }
+
+  function calcOverall(data) {
+    const logs = data.logs || {};
+    let done = 0, total = 0;
+    for (const d in logs) {
+      for (const g of GOALS) {
+        const entry = logs[d]?.[g];
+        if (entry?.done !== undefined) {
+          total++;
+          if (entry.done) done++;
+        }
+      }
+    }
+    return {done, total, rate: total > 0 ? (done / total * 100) : 0};
+  }
+
+  // 渲染
+  function renderHeader(data) {
+    const today = todayStr();
+    const todayDay = Math.min(Math.max(dayNumber(today), 1), TARGET_DAYS);
+    document.getElementById('dayNum').textContent = todayDay;
+  }
+
+  function renderProgressGrid(data) {
+    const grid = document.getElementById('progressGrid');
+    const logs = data.logs || {};
+    const overall = calcOverall(data);
+    document.getElementById('overallLabel').textContent = `整体完成率: ${overall.rate.toFixed(1)}%`;
+    document.getElementById('overallCount').textContent = `${overall.done}/${overall.total}`;
+
+    grid.innerHTML = '';
+    for (let i = 1; i <= TARGET_DAYS; i++) {
+      const d = new Date(START_DATE);
+      d.setDate(d.getDate() + i - 1);
+      const dateStr = d.toISOString().slice(0, 10);
+      const cell = document.createElement('div');
+      cell.className = 'progress-cell';
+
+      const entry = logs[dateStr];
+      if (entry) {
+        let doneCount = 0;
+        for (const g of GOALS) {
+          if (entry[g]?.done) doneCount++;
+        }
+        if (doneCount === 3) cell.classList.add('done');
+        else if (doneCount > 0) cell.classList.add('partial');
+      }
+
+      const today = todayStr();
+      if (dateStr === today) cell.classList.add('today');
+
+      cell.dataset.tip = `Day ${i} (${formatDate(dateStr)})`;
+      grid.appendChild(cell);
+    }
+  }
+
+  function renderRings(data) {
+    const logs = data.logs || {};
+    for (const g of GOALS) {
+      const comp = calcCompletion(data, g);
+      const streak = calcStreak(data, g);
+      document.getElementById(`pct${capitalize(g)}`).textContent = comp.rate > 0 ? `${comp.rate.toFixed(0)}%` : '--';
+      document.getElementById(`streak${capitalize(g)}`).textContent = `连续 ${streak} 天`;
+
+      const ring = document.getElementById(`ring${capitalize(g)}`);
+      if (!ring) continue;
+      ring.style.strokeDasharray = CIRCUMFERENCE;
+      const offset = CIRCUMFERENCE * (1 - comp.rate / 100);
+      ring.style.strokeDashoffset = offset;
+    }
+  }
+
+  function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+  function renderWeekTable(data) {
+    const tbody = document.getElementById('weekBody');
+    const logs = data.logs || {};
+
+    // 找最近 7 天（含今天）
+    const today = new Date();
+    const dates = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      dates.push(d.toISOString().slice(0, 10));
+    }
+
+    tbody.innerHTML = '';
+    for (const g of GOALS) {
+      const tr = document.createElement('tr');
+      const labelTd = document.createElement('td');
+      labelTd.className = 'goal-label';
+      labelTd.textContent = GOAL_NAMES[g];
+      tr.appendChild(labelTd);
+
+      for (const d of dates) {
+        const td = document.createElement('td');
+        const entry = logs[d]?.[g];
+        if (entry?.done) td.textContent = 'Y';
+        else if (entry?.done === false || logs[d]) td.textContent = 'N';
+        else td.textContent = '-';
+        td.style.color = entry?.done ? '#2ed573' : (entry?.done === false ? '#ff4757' : '#d0d5dd');
+        td.style.fontWeight = '700';
+        tr.appendChild(td);
+      }
+      tbody.appendChild(tr);
+    }
+  }
+
+  function renderWeightChart(data) {
+    const canvas = document.getElementById('weightCanvas');
+    const emptyMsg = document.getElementById('weightEmpty');
+    const weights = data.weights || {};
+    const wDates = Object.keys(weights).sort();
+    if (wDates.length < 1) {
+      canvas.classList.add('hidden');
+      emptyMsg.classList.remove('hidden');
+      return;
+    }
+    canvas.classList.remove('hidden');
+    emptyMsg.classList.add('hidden');
+
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+    const W = rect.width, H = rect.height;
+
+    const vals = wDates.map(d => weights[d]);
+    const minW = Math.min(...vals) - 2;
+    const maxW = Math.max(...vals) + 2;
+    const pad = {top: 20, bottom: 30, left: 50, right: 20};
+    const chartW = W - pad.left - pad.right;
+    const chartH = H - pad.top - pad.bottom;
+
+    const hasMultiple = wDates.length >= 2;
+    function x(i) { return pad.left + (hasMultiple ? (i / (wDates.length - 1)) * chartW : chartW / 2); }
+    function y(v) { return pad.top + (1 - (v - minW) / (maxW - minW)) * chartH; }
+
+    // 清空
+    ctx.clearRect(0, 0, W, H);
+
+    // 网格线
+    ctx.strokeStyle = '#e8ecf1';
+    ctx.lineWidth = 1;
+    for (let v = Math.ceil(minW); v <= Math.floor(maxW); v++) {
+      const yy = y(v);
+      ctx.beginPath(); ctx.moveTo(pad.left, yy); ctx.lineTo(W - pad.right, yy); ctx.stroke();
+      ctx.fillStyle = '#8e98a8'; ctx.font = '11px sans-serif'; ctx.textAlign = 'right';
+      ctx.fillText(`${v}kg`, pad.left - 8, yy + 4);
+    }
+
+    // 折线（2 个点以上才画）
+    if (hasMultiple) {
+      ctx.beginPath();
+      ctx.strokeStyle = '#4f8cff';
+      ctx.lineWidth = 2;
+      ctx.lineJoin = 'round';
+      for (let i = 0; i < wDates.length; i++) {
+        const px = x(i), py = y(vals[i]);
+        i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+      }
+      ctx.stroke();
+    }
+
+    // 面积填充（2 个点以上才画）
+    if (hasMultiple) {
+      ctx.lineTo(x(wDates.length - 1), y(minW));
+      ctx.lineTo(x(0), y(minW));
+      ctx.closePath();
+      ctx.fillStyle = 'rgba(79, 140, 255, 0.08)';
+      ctx.fill();
+    }
+
+    // 数据点
+    for (let i = 0; i < wDates.length; i++) {
+      const px = x(i), py = y(vals[i]);
+      ctx.beginPath();
+      ctx.arc(px, py, 5, 0, Math.PI * 2);
+      ctx.fillStyle = '#4f8cff';
+      ctx.fill();
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+
+    // X 轴标签
+    ctx.fillStyle = '#8e98a8';
+    ctx.font = '11px sans-serif';
+    ctx.textAlign = 'center';
+    for (let i = 0; i < wDates.length; i++) {
+      const px = x(i);
+      ctx.fillText(formatDate(wDates[i]), px, H - pad.bottom + 18);
+    }
+  }
+
+  function renderAll(data) {
+    currentData = data;
+    renderHeader(data);
+    renderProgressGrid(data);
+    renderRings(data);
+    renderWeekTable(data);
+    renderWeightChart(data);
+    document.getElementById('errorMsg').classList.add('hidden');
+  }
+
+  // 数据加载
+  function loadFile(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      try {
+        const data = JSON.parse(e.target.result);
+        if (!data.meta || !data.logs) throw new Error('数据格式不正确');
+        renderAll(data);
+        document.getElementById('errorMsg').classList.add('hidden');
+      } catch (err) {
+        const el = document.getElementById('errorMsg');
+        el.textContent = `解析失败: ${err.message}`;
+        el.classList.remove('hidden');
+      }
+    };
+    reader.readAsText(file);
+    event.target.value = '';
+  }
+
+  function tryFetchData() {
+    fetch('data.json')
+      .then(r => {
+        if (!r.ok) throw new Error('file');
+        return r.json();
+      })
+      .then(data => renderAll(data))
+      .catch(() => {
+        // fetch 失败（file:// 跨域），不做处理，用户点击选择文件即可
+      });
+  }
+
+  function renderFromInput() {
+    const raw = document.getElementById('jsonInput').value.trim();
+    if (!raw) return;
+    try {
+      const data = JSON.parse(raw);
+      if (!data.meta || !data.logs) throw new Error('数据格式不正确');
+      renderAll(data);
+      document.getElementById('errorMsg').classList.add('hidden');
+    } catch (err) {
+      const el = document.getElementById('errorMsg');
+      el.textContent = `解析失败: ${err.message}`;
+      el.classList.remove('hidden');
+    }
+  }
+
+  // 粘贴模式切换
+  document.querySelector('button.secondary')?.addEventListener('click', function() {
+    const textarea = document.getElementById('jsonInput');
+    const row = document.getElementById('pasteBtnRow');
+    textarea.style.display = '';
+    row.style.display = '';
+    this.style.display = 'none';
+  });
+
+  // 外部暴露
+  window.loadFile = loadFile;
+  window.renderFromInput = renderFromInput;
+
+  // 启动：优先使用 data.js 嵌入的数据（file:// 兼容），其次尝试 fetch
+  if (window.__DATA__) {
+    renderAll(window.__DATA__);
+  } else {
+    fetch('data.json')
+      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(data => renderAll(data))
+      .catch(() => {});
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,136 @@
+[1760202757.658][INFO]: Starting ChromeDriver 141.0.7390.76 (d6fcfbb51aac4df61d06692d4a62fd8b9aaf3c3a-refs/branch-heads/7390_65@{#3}) on port 4291
+[1760202757.658][INFO]: Please see https://chromedriver.chromium.org/security-considerations for suggestions on keeping ChromeDriver safe.
+[1760202757.661][INFO]: ChromeDriver was started successfully on port 4291
+[1760202758.170][INFO]: [f9cdbef7e364ec05b876da8db3de42ce] COMMAND InitSession {
+   "capabilities": {
+      "alwaysMatch": {
+         "browserName": "chrome",
+         "browserVersion": null,
+         "goog:chromeOptions": {
+            "args": [  ],
+            "binary": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+            "extensions": [  ]
+         },
+         "pageLoadStrategy": "normal"
+      },
+      "firstMatch": [ {
+      } ]
+   }
+}
+[1760202758.170][INFO]: Populating Preferences file: {
+   "alternate_error_pages": {
+      "enabled": false
+   },
+   "autofill": {
+      "enabled": false
+   },
+   "browser": {
+      "check_default_browser": false
+   },
+   "distribution": {
+      "import_bookmarks": false,
+      "import_history": false,
+      "import_search_engine": false,
+      "make_chrome_default_for_user": false,
+      "skip_first_run_ui": true
+   },
+   "dns_prefetching": {
+      "enabled": false
+   },
+   "profile": {
+      "content_settings": {
+         "pattern_pairs": {
+            "https://*,*": {
+               "media-stream": {
+                  "audio": "Default",
+                  "video": "Default"
+               }
+            }
+         }
+      },
+      "default_content_setting_values": {
+         "geolocation": 1
+      },
+      "default_content_settings": {
+         "geolocation": 1,
+         "mouselock": 1,
+         "notifications": 1,
+         "popups": 1,
+         "ppapi-broker": 1
+      },
+      "password_manager_enabled": false
+   },
+   "safebrowsing": {
+      "enabled": false
+   },
+   "search": {
+      "suggest_enabled": false
+   },
+   "translate": {
+      "enabled": false
+   }
+}
+[1760202758.170][INFO]: Populating Local State file: {
+   "background_mode": {
+      "enabled": false
+   },
+   "ssl": {
+      "rev_checking": {
+         "enabled": false
+      }
+   }
+}
+[1760202758.171][INFO]: ChromeDriver supports communication with Chrome via pipes. This is more reliable and more secure.
+[1760202758.171][INFO]: Use the --remote-debugging-pipe Chrome switch instead of the default --remote-debugging-port to enable this communication mode.
+[1760202758.171][INFO]: Launching chrome: "C:\Program Files\Google\Chrome\Application\chrome.exe" --allow-pre-commit-input --disable-background-networking --disable-backgrounding-occluded-windows --disable-client-side-phishing-detection --disable-default-apps --disable-hang-monitor --disable-popup-blocking --disable-prompt-on-repost --disable-sync --enable-automation --enable-logging=stderr --log-level=0 --no-first-run --no-service-autorun --password-store=basic --remote-debugging-port=0 --test-type=webdriver --use-mock-keychain --user-data-dir="C:\WINDOWS\SystemTemp\scoped_dir30200_549881274" data:,
+[41728:23188:1012/011238.236:INFO:components\enterprise\browser\controller\chrome_browser_cloud_management_controller.cc:206] No machine level policy manager exists.
+
+DevTools listening on ws://127.0.0.1:4300/devtools/browser/0175ca1d-af7d-465d-9a01-3be02be7d7af
+[1760202758.613][INFO]: resolved localhost to ["127.0.0.1","::1"]
+[1760202758.617][INFO]: [f9cdbef7e364ec05b876da8db3de42ce] RESPONSE InitSession {
+   "capabilities": {
+      "acceptInsecureCerts": false,
+      "browserName": "chrome",
+      "browserVersion": "141.0.7390.77",
+      "chrome": {
+         "chromedriverVersion": "141.0.7390.76 (d6fcfbb51aac4df61d06692d4a62fd8b9aaf3c3a-refs/branch-heads/7390_65@{#3})",
+         "userDataDir": "C:\\WINDOWS\\SystemTemp\\scoped_dir30200_549881274"
+      },
+      "fedcm:accounts": true,
+      "goog:chromeOptions": {
+         "debuggerAddress": "localhost:4300"
+      },
+      "networkConnectionEnabled": false,
+      "pageLoadStrategy": "normal",
+      "platformName": "windows",
+      "proxy": {
+      },
+      "setWindowRect": true,
+      "strictFileInteractability": false,
+      "timeouts": {
+         "implicit": 0,
+         "pageLoad": 300000,
+         "script": 30000
+      },
+      "unhandledPromptBehavior": "dismiss and notify",
+      "webauthn:extension:credBlob": true,
+      "webauthn:extension:largeBlob": true,
+      "webauthn:extension:minPinLength": true,
+      "webauthn:extension:prf": true,
+      "webauthn:virtualAuthenticators": true
+   },
+   "sessionId": "f9cdbef7e364ec05b876da8db3de42ce"
+}
+[1760202758.618][INFO]: [f9cdbef7e364ec05b876da8db3de42ce] COMMAND Navigate {
+   "url": "https://www/baidu.com"
+}
+[1760202758.618][INFO]: Waiting for pending navigations...
+[1760202758.620][INFO]: Done waiting for pending navigations. Status: ok
+[1760202763.631][INFO]: Waiting for pending navigations...
+[1760202763.660][INFO]: Done waiting for pending navigations. Status: ok
+[1760202768.229][INFO]: Waiting for pending navigations...
+[1760202768.230][INFO]: Done waiting for pending navigations. Status: ok
+[1760202772.791][INFO]: Waiting for pending navigations...
+[1760202772.792][INFO]: Done waiting for pending navigations. Status: ok
+[1760202772.792][INFO]: [f9cdbef7e364ec05b876da8db3de42ce] RESPONSE Navigate ERROR unknown error: net::ERR_NAME_NOT_RESOLVED
+  (Session info: chrome=141.0.7390.77)

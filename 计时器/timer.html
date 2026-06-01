@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>计时器</title>
+<style>
+  :root {
+    --bg: #f5f7fa;
+    --surface: #ffffff;
+    --border: #e0e5ec;
+    --muted: #8e98a8;
+    --accent: #4f8cff;
+    --danger: #ff4757;
+    --warning: #ffb800;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "Segoe UI", sans-serif;
+    display: flex; justify-content: center; align-items: center;
+    min-height: 100vh; background: var(--bg); color: #2c3e50;
+    user-select: none;
+  }
+  .container {
+    text-align: center; padding: 40px;
+    background: var(--surface); border-radius: 24px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.06);
+    max-width: 400px; margin: 20px auto;
+  }
+  .timer-circle {
+    position: relative; width: 280px; height: 280px;
+    margin: 0 auto 30px;
+  }
+  .timer-circle svg {
+    transform: rotate(-90deg); width: 280px; height: 280px;
+  }
+  .timer-circle .bg { fill: none; stroke: var(--surface); stroke-width: 6; }
+  .timer-circle .progress {
+    fill: none; stroke: var(--accent); stroke-width: 6;
+    stroke-linecap: round;
+    stroke-dashoffset: 0; transition: stroke-dashoffset 0.3s;
+  }
+  .timer-circle .progress.warning { stroke: var(--warning); }
+  .timer-circle .progress.danger { stroke: var(--danger); }
+  .time-display {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 56px; font-weight: 700; letter-spacing: 2px;
+    font-variant-numeric: tabular-nums;
+  }
+  .controls { display: flex; gap: 12px; justify-content: center; margin-bottom: 28px; }
+  .controls button {
+    padding: 10px 28px; border: none; border-radius: 8px;
+    font-size: 15px; font-weight: 600; cursor: pointer;
+    transition: all 0.2s; background: var(--surface); color: var(--muted);
+  }
+  .controls button:hover { background: var(--border); color: #2c3e50; }
+  .controls button.primary { background: var(--accent); color: #fff; }
+  .controls button.primary:hover { background: #6ba0ff; }
+  .controls button.danger { background: var(--danger); color: #fff; }
+  .controls button.danger:hover { background: #ff6b7a; }
+  .controls button:disabled { opacity: 0.4; cursor: not-allowed; }
+  .presets { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .presets button {
+    padding: 6px 18px; border: 1px solid var(--border); border-radius: 20px;
+    background: transparent; color: var(--muted); font-size: 13px;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .presets button:hover { border-color: var(--accent); color: var(--accent); }
+  .presets button.active { border-color: var(--accent); background: rgba(79,140,255,0.08); color: var(--accent); }
+  .custom-input {
+    display: flex; gap: 10px; justify-content: center; align-items: center;
+    margin-bottom: 20px;
+  }
+  .custom-input input {
+    width: 70px; padding: 8px 12px; border: 1px solid var(--border);
+    border-radius: 8px; background: var(--surface); color: #2c3e50;
+    font-size: 16px; text-align: center; outline: none;
+  }
+  .custom-input input:focus { border-color: var(--accent); }
+  .custom-input span { color: var(--muted); font-size: 18px; }
+  .status { color: var(--muted); font-size: 14px; margin-top: 16px; min-height: 20px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="custom-input" id="inputArea">
+    <input type="number" id="minutes" min="0" max="999" value="5" placeholder="分">
+    <span>分</span>
+    <input type="number" id="seconds" min="0" max="59" value="0" placeholder="秒">
+    <span>秒</span>
+  </div>
+
+  <div class="timer-circle">
+    <svg viewBox="0 0 280 280">
+      <circle class="bg" cx="140" cy="140" r="120"/>
+      <circle class="progress" id="progress" cx="140" cy="140" r="120"/>
+    </svg>
+    <div class="time-display" id="display">05:00</div>
+  </div>
+
+  <div class="controls">
+    <button id="startBtn" class="primary">开始</button>
+    <button id="pauseBtn" disabled>暂停</button>
+    <button id="resetBtn">重置</button>
+  </div>
+
+  <div class="presets">
+    <button data-time="60">1 分钟</button>
+    <button data-time="180">3 分钟</button>
+    <button data-time="300" class="active">5 分钟</button>
+    <button data-time="600">10 分钟</button>
+    <button data-time="900">15 分钟</button>
+    <button data-time="1800">30 分钟</button>
+  </div>
+
+  <div class="status" id="status">点击"开始"启动计时器</div>
+</div>
+
+<script>
+  (function() {
+    const RADIUS = 120;
+    const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
+    const DEFAULT_SECONDS = 300;
+    const TICK_MS = 1000;
+    const DISABLED_OPACITY = '0.3';
+    const ENABLED_OPACITY = '1';
+    const WARNING_RATIO = 0.3;
+    const DANGER_RATIO = 0.15;
+
+    const display = document.getElementById('display');
+    const progress = document.getElementById('progress');
+    const startBtn = document.getElementById('startBtn');
+    const pauseBtn = document.getElementById('pauseBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const statusEl = document.getElementById('status');
+    const minInput = document.getElementById('minutes');
+    const secInput = document.getElementById('seconds');
+    const presetBtns = document.querySelectorAll('.presets button');
+    const inputArea = document.getElementById('inputArea');
+
+    progress.style.strokeDasharray = CIRCUMFERENCE;
+
+    const presetMap = new Map();
+    presetBtns.forEach(b => presetMap.set(parseInt(b.dataset.time), b));
+
+    let totalSeconds = DEFAULT_SECONDS;
+    let remaining = DEFAULT_SECONDS;
+    let timerId = null;
+    let lastClass = ''; // '', 'warning', 'danger'
+
+    let audioCtx = null;
+    function getAudioCtx() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      return audioCtx;
+    }
+
+    function beep(freq, duration, vol = 0.3) {
+      const ctx = getAudioCtx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      gain.gain.value = vol;
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.onended = () => { osc.disconnect(); gain.disconnect(); };
+      osc.start();
+      osc.stop(ctx.currentTime + duration);
+    }
+
+    function playAlarm() {
+      const ctx = getAudioCtx();
+      const t = ctx.currentTime;
+      beep(880, 0.15);
+      setTimeout(() => beep(880, 0.15), 200);
+      setTimeout(() => beep(660, 0.15), 400);
+      setTimeout(() => beep(880, 0.3), 600);
+    }
+
+    function applyTotal(t) {
+      totalSeconds = t;
+      remaining = t;
+      lastClass = '';
+    }
+
+    function updateDisplay() {
+      const m = Math.floor(remaining / 60);
+      const s = remaining % 60;
+      display.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+      const ratio = totalSeconds > 0 ? remaining / totalSeconds : 0;
+      progress.style.strokeDashoffset = CIRCUMFERENCE * (1 - ratio);
+
+      if (ratio > DANGER_RATIO && ratio <= WARNING_RATIO && lastClass !== 'warning') {
+        progress.classList.remove('danger');
+        progress.classList.add('warning');
+        lastClass = 'warning';
+      } else if (ratio > 0 && ratio <= DANGER_RATIO && lastClass !== 'danger') {
+        progress.classList.remove('warning');
+        progress.classList.add('danger');
+        lastClass = 'danger';
+      } else if (ratio === 0 || ratio > WARNING_RATIO) {
+        if (lastClass) {
+          progress.classList.remove(lastClass);
+          lastClass = '';
+        }
+      }
+    }
+
+    function setUI(mode) {
+      stopTimer();
+      switch (mode) {
+        case 'idle':
+          startBtn.textContent = '开始';
+          startBtn.disabled = false;
+          pauseBtn.disabled = true;
+          inputArea.style.opacity = ENABLED_OPACITY;
+          break;
+        case 'running':
+          startBtn.textContent = '运行中';
+          startBtn.disabled = true;
+          pauseBtn.disabled = false;
+          inputArea.style.opacity = DISABLED_OPACITY;
+          break;
+        case 'paused':
+          startBtn.textContent = '继续';
+          startBtn.disabled = false;
+          pauseBtn.disabled = true;
+          break;
+        case 'expired':
+          startBtn.textContent = '开始';
+          startBtn.disabled = false;
+          pauseBtn.disabled = true;
+          inputArea.style.opacity = ENABLED_OPACITY;
+          break;
+      }
+    }
+
+    function syncInputs() {
+      minInput.value = Math.floor(remaining / 60);
+      secInput.value = remaining % 60;
+    }
+
+    function readInput() {
+      const m = parseInt(minInput.value) || 0;
+      const s = parseInt(secInput.value) || 0;
+      return m * 60 + s;
+    }
+
+    function applyTimeFromInput() {
+      if (timerId) return;
+      const t = readInput();
+      if (t <= 0) return;
+      applyTotal(t);
+      updateDisplay();
+    }
+
+    function setTotal(t) {
+      setUI('idle');
+      applyTotal(t);
+      updateDisplay();
+      syncInputs();
+      statusEl.textContent = '已就绪';
+      presetBtns.forEach(b => b.classList.toggle('active', presetMap.get(parseInt(b.dataset.time)) === t));
+    }
+
+    function stopTimer() {
+      if (timerId) { clearInterval(timerId); timerId = null; }
+    }
+
+    function handleTimerComplete() {
+      stopTimer();
+      playAlarm();
+      setUI('expired');
+      statusEl.textContent = '⏰ 时间到！';
+      if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification('计时器', { body: '时间到！' });
+      }
+    }
+
+    function startTimer() {
+      const s = readInput();
+      if (s <= 0) { statusEl.textContent = '请设置时间'; return; }
+      if (timerId) return;
+
+      if (startBtn.textContent === '开始') {
+        applyTotal(s);
+        updateDisplay();
+      }
+      setUI('running');
+      statusEl.textContent = '计时中...';
+
+      timerId = setInterval(() => {
+        remaining--;
+        updateDisplay();
+        if (remaining <= 0) handleTimerComplete();
+      }, TICK_MS);
+    }
+
+    function pauseTimer() {
+      if (!timerId) return;
+      stopTimer();
+      setUI('paused');
+      statusEl.textContent = '已暂停';
+    }
+
+    function resetTimer() {
+      setTotal(readInput() || DEFAULT_SECONDS);
+    }
+
+    startBtn.addEventListener('click', startTimer);
+    pauseBtn.addEventListener('click', pauseTimer);
+    resetBtn.addEventListener('click', resetTimer);
+
+    minInput.addEventListener('input', applyTimeFromInput);
+    secInput.addEventListener('input', () => {
+      const v = parseInt(secInput.value);
+      if (v > 59) secInput.value = 59;
+      applyTimeFromInput();
+    });
+
+    presetMap.forEach((btn, time) => {
+      btn.addEventListener('click', () => setTotal(time));
+    });
+
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+
+    setTotal(DEFAULT_SECONDS);
+
+    document.addEventListener('keydown', e => {
+      if (e.target.tagName === 'INPUT') return;
+      if (e.key === ' ') { e.preventDefault(); startBtn.disabled ? pauseTimer() : startTimer(); }
+      if (e.key === 'r' || e.key === 'R') resetTimer();
+    });
+
+    window.addEventListener('beforeunload', () => {
+      stopTimer();
+      if (audioCtx) audioCtx.close();
+    });
+  })();
+</script>
+</body>
+</html>
