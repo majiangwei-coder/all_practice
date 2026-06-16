@@ -1,2 +1,4 @@
+# 屏蔽MP4文件
 *.mp4
+# 屏蔽谷歌浏览器
 chromedriver.exe
