@@ -12,7 +12,11 @@
       "Bash(python checkin.py report)",
       "Bash(python checkin.py chart)",
       "Bash(python checkin.py report --month)",
-      "WebFetch(domain:g8hh.github.io)"
+      "WebFetch(domain:g8hh.github.io)",
+      "Bash(claude update *)",
+      "Bash(npm list *)",
+      "Bash(npx @anthropic-ai/claude-code --version)",
+      "Bash(npm update *)"
     ],
     "additionalDirectories": [
       "d:\\Program Files (x86)\\practice"
